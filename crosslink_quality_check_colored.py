@@ -159,9 +159,16 @@ df_sorted.columns = [x for x in range(len(files))]
 
 # Find the n most reproducible motifs in the two replicates of your experiment
 n = 10
-top_n_motifs = ["red" for x in range(n)]
-rest_of_points = ["blue" for x in range(len(df_sorted[0]) - n)]
-colors_for_scatterplot = top_n_motifs + rest_of_points
+
+rgba_colors = numpy.zeros((len(df_sorted[0]),4))
+rgba_colors[0:n,0] = 1.0
+rgba_colors[0:n,3] = 1.0
+rgba_colors[n+1:,2] = 1.0
+rgba_colors[n+1:,3] = 0.1
+
+#top_n_motifs = ["red" for x in range(n)]
+#rest_of_points = ["blue" for x in range(len(df_sorted[0]) - n)]
+#colors_for_scatterplot = top_n_motifs + rest_of_points
 
 # create a plot and list of motifs with their sorted relative abundance for each pair of files
 p = 1
@@ -181,7 +188,7 @@ for i in range(0,len(files)):
         # do linear regression for the two files
         slope, intercept, r_value, p_value, std_err = stats.linregress(df_sorted[i], df_sorted[j])
 
-        plt.scatter(df_sorted[i], df_sorted[j], c=colors_for_scatterplot, s=2)
+        plt.scatter(df_sorted[i], df_sorted[j], c=rgba_colors, s=2)
         plt.ylabel(files[i])
         plt.xlabel(files[j])
 
@@ -189,6 +196,9 @@ for i in range(0,len(files)):
         max_y = max(df_sorted[j])
 
         plt.title("R" + r'$^2 =$' + " " + str(r_value), fontsize=15)
+
+        for point in range(n):
+            plt.text(df_sorted[i][point], df_sorted[j][point], point+1, fontsize=5)
 
         pp.savefig()
         pp.close()
